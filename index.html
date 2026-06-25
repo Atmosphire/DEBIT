@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Optimiseur de bruts</title>
+  <style>
+    :root {
+      --bg: #f3efe7;
+      --card: #ffffff;
+      --text: #222;
+      --muted: #716b62;
+      --border: #ded7cc;
+      --accent: #222;
+      --soft: #eee7dc;
+      --danger: #8a2d2d;
+      --ok: #21613b;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    main {
+      width: min(760px, 100%);
+      margin: 0 auto;
+      padding: 14px;
+      padding-bottom: 40px;
+    }
+
+    header {
+      background: var(--accent);
+      color: white;
+      border-radius: 22px;
+      padding: 22px;
+      margin-bottom: 14px;
+      box-shadow: 0 10px 28px rgba(0,0,0,.14);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 7vw, 3.3rem);
+      line-height: .95;
+    }
+
+    .subtitle {
+      margin: 14px 0 0;
+      color: rgba(255,255,255,.78);
+      line-height: 1.45;
+    }
+
+    .papa {
+      margin: 18px 0 0;
+      font-size: .88rem;
+      color: rgba(255,255,255,.62);
+    }
+
+    section, .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      margin-top: 14px;
+    }
+
+    label {
+      display: block;
+      font-weight: 800;
+      font-size: 1.05rem;
+      margin-bottom: 10px;
+    }
+
+    label span, .hint {
+      color: var(--muted);
+      font-weight: 500;
+      font-size: .88rem;
+    }
+
+    textarea, input {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 13px;
+      font: inherit;
+      color: var(--text);
+      background: #fffdf9;
+      outline: none;
+    }
+
+    textarea:focus, input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(34,34,34,.08);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 130px;
+    }
+
+    .hint {
+      margin: 10px 0 0;
+      line-height: 1.35;
+    }
+
+    .kerf-line {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 10px;
+      align-items: center;
+      color: var(--muted);
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 16px;
+      padding: 15px 16px;
+      font: inherit;
+      font-weight: 800;
+      color: white;
+      background: var(--accent);
+      cursor: pointer;
+    }
+
+    button.secondary {
+      color: var(--text);
+      background: var(--soft);
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    #message {
+      color: var(--danger);
+      font-weight: 750;
+      line-height: 1.4;
+    }
+
+    #summary {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .stat {
+      background: #faf7f0;
+      border-radius: 14px;
+      padding: 12px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.25rem;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: .86rem;
+    }
+
+    #results {
+      margin-top: 14px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .cut-card h2 {
+      margin: 0 0 10px;
+      font-size: 1.12rem;
+    }
+
+    .bar {
+      width: 100%;
+      height: 18px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: var(--soft);
+      display: flex;
+      margin: 12px 0;
+    }
+
+    .bar-used {
+      background: var(--accent);
+      min-width: 0;
+    }
+
+    .bar-waste {
+      background: #c9bda9;
+      min-width: 0;
+    }
+
+    .meta {
+      display: grid;
+      gap: 5px;
+      color: var(--muted);
+      font-size: .94rem;
+    }
+
+    .ok {
+      color: var(--ok);
+      font-weight: 800;
+    }
+
+    .parts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .part {
+      background: #f0ede7;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-weight: 800;
+    }
+
+    @media (max-width: 520px) {
+      main {
+        padding: 12px;
+      }
+
+      .actions, #summary {
+        grid-template-columns: 1fr;
+      }
+
+      header, section, .card {
+        border-radius: 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <header>
+      <h1>Optimiseur de bruts</h1>
+      <p class="subtitle">
+        Rentre les bruts disponibles, puis les cotes à débiter. L’application cherche un plan de coupe pour réduire les chutes.
+      </p>
+      <p class="papa">Créé avec soin pour mon papa ❤️</p>
+    </header>
+
+    <section>
+      <label for="stocks">Bruts disponibles <span>en mm</span></label>
+      <textarea id="stocks" placeholder="Exemples :
+5000
+6000
+6000
+1000"></textarea>
+      <p class="hint">Tu peux écrire une cote par ligne, avec des virgules, ou avec une quantité. Exemple : 6000 x 3.</p>
+    </section>
+
+    <section>
+      <label for="cuts">Cotes à débiter <span>en mm</span></label>
+      <textarea id="cuts" placeholder="Exemples :
+580
+580
+1200
+900
+450 x 4"></textarea>
+      <p class="hint">Exemple : 580 x 6 ajoute six morceaux de 580 mm.</p>
+    </section>
+
+    <section>
+      <label for="kerf">Trait de scie</label>
+      <div class="kerf-line">
+        <input id="kerf" inputmode="decimal" value="3">
+        <span>mm par coupe</span>
+      </div>
+    </section>
+
+    <div class="actions">
+      <button id="optimizeBtn" type="button">Optimiser le débit</button>
+      <button id="clearBtn" type="button" class="secondary">Effacer</button>
+    </div>
+
+    <section id="message" class="hidden"></section>
+    <section id="summary" class="hidden"></section>
+    <div id="results"></div>
+  </main>
+
+  <script>
+    const stocksEl = document.getElementById("stocks");
+    const cutsEl = document.getElementById("cuts");
+    const kerfEl = document.getElementById("kerf");
+    const optimizeBtn = document.getElementById("optimizeBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const messageEl = document.getElementById("message");
+    const summaryEl = document.getElementById("summary");
+    const resultsEl = document.getElementById("results");
+
+    const STORAGE_KEY = "optimiseur-bruts-simple-html";
+
+    loadSavedData();
+
+    [stocksEl, cutsEl, kerfEl].forEach(el => {
+      el.addEventListener("input", saveData);
+    });
+
+    optimizeBtn.addEventListener("click", runOptimization);
+
+    clearBtn.addEventListener("click", () => {
+      stocksEl.value = "";
+      cutsEl.value = "";
+      kerfEl.value = "3";
+      saveData();
+      clearOutput();
+    });
+
+    function saveData() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        stocks: stocksEl.value,
+        cuts: cutsEl.value,
+        kerf: kerfEl.value
+      }));
+    }
+
+    function loadSavedData() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (!saved) return;
+        stocksEl.value = saved.stocks || "";
+        cutsEl.value = saved.cuts || "";
+        kerfEl.value = saved.kerf || "3";
+      } catch {}
+    }
+
+    function parseLengths(text) {
+      const values = [];
+      const lines = text
+        .replaceAll("×", "x")
+        .split(/[\n;,]+/)
+        .map(line => line.trim())
+        .filter(Boolean);
+
+      for (const line of lines) {
+        const repeated = line.match(/^(\d+(?:[.,]\d+)?)\s*x\s*(\d+)$/i);
+
+        if (repeated) {
+          const length = toNumber(repeated[1]);
+          const qty = Number.parseInt(repeated[2], 10);
+          if (Number.isFinite(length) && length > 0 && qty > 0) {
+            for (let i = 0; i < qty; i++) {
+              values.push(round2(length));
+            }
+          }
+          continue;
+        }
+
+        const numbers = line.match(/\d+(?:[.,]\d+)?/g) || [];
+        for (const number of numbers) {
+          const length = toNumber(number);
+          if (Number.isFinite(length) && length > 0) {
+            values.push(round2(length));
+          }
+        }
+      }
+
+      return values;
+    }
+
+    function toNumber(value) {
+      return Number.parseFloat(String(value).replace(",", "."));
+    }
+
+    function clearOutput() {
+      messageEl.classList.add("hidden");
+      summaryEl.classList.add("hidden");
+      resultsEl.innerHTML = "";
+    }
+
+    function showMessage(text) {
+      messageEl.textContent = text;
+      messageEl.classList.remove("hidden");
+    }
+
+    function hideMessage() {
+      messageEl.textContent = "";
+      messageEl.classList.add("hidden");
+    }
+
+    function runOptimization() {
+      clearOutput();
+
+      const stocks = parseLengths(stocksEl.value).sort((a, b) => a - b);
+      const cuts = parseLengths(cutsEl.value).sort((a, b) => b - a);
+      const kerf = Math.max(0, toNumber(kerfEl.value) || 0);
+
+      if (!stocks.length) {
+        showMessage("Ajoute au moins un brut disponible.");
+        return;
+      }
+
+      if (!cuts.length) {
+        showMessage("Ajoute au moins une cote à débiter.");
+        return;
+      }
+
+      const biggestStock = Math.max(...stocks);
+      const impossible = cuts.filter(cut => cut + kerf > biggestStock);
+
+      if (impossible.length) {
+        showMessage("Impossible : une cote est plus grande que le plus grand brut. Cote bloquante : " + formatNumber(impossible[0]) + " mm.");
+        return;
+      }
+
+      const result = greedyOptimize(cuts, stocks, kerf);
+
+      if (result.unplaced.length) {
+        showMessage("Je n’arrive pas à placer toutes les cotes avec les bruts disponibles. Il manque de la longueur ou certains bruts sont trop courts.");
+      } else {
+        hideMessage();
+      }
+
+      renderResult(result, cuts, kerf);
+    }
+
+    function greedyOptimize(cuts, stocks, kerf) {
+      const unused = stocks.map((length, index) => ({ id: index, length })).sort((a, b) => a.length - b.length);
+      const bins = [];
+      const unplaced = [];
+
+      for (const cut of cuts) {
+        const needed = cut + kerf;
+
+        let bestBinIndex = -1;
+        let bestRemaining = Infinity;
+
+        for (let i = 0; i < bins.length; i++) {
+          const after = bins[i].remaining - needed;
+          if (after >= 0 && after < bestRemaining) {
+            bestRemaining = after;
+            bestBinIndex = i;
+          }
+        }
+
+        if (bestBinIndex !== -1) {
+          bins[bestBinIndex].cuts.push(cut);
+          bins[bestBinIndex].remaining = round2(bins[bestBinIndex].remaining - needed);
+          continue;
+        }
+
+        const stockIndex = unused.findIndex(stock => stock.length >= needed);
+
+        if (stockIndex === -1) {
+          unplaced.push(cut);
+          continue;
+        }
+
+        const stock = unused.splice(stockIndex, 1)[0];
+
+        bins.push({
+          id: stock.id,
+          length: stock.length,
+          remaining: round2(stock.length - needed),
+          cuts: [cut]
+        });
+      }
+
+      bins.sort((a, b) => b.length - a.length || a.remaining - b.remaining);
+
+      return {
+        bins,
+        unplaced,
+        waste: round2(bins.reduce((sum, bin) => sum + bin.remaining, 0))
+      };
+    }
+
+    function renderResult(result, cuts, kerf) {
+      const totalUsedStocks = result.bins.reduce((sum, bin) => sum + bin.length, 0);
+      const wastePercent = totalUsedStocks > 0 ? result.waste / totalUsedStocks * 100 : 0;
+
+      summaryEl.innerHTML = `
+        <div class="stat">
+          <strong>${result.bins.length}</strong>
+          <span>brut(s) utilisé(s)</span>
+        </div>
+        <div class="stat">
+          <strong>${formatNumber(result.waste)} mm</strong>
+          <span>chute totale</span>
+        </div>
+        <div class="stat">
+          <strong>${formatNumber(wastePercent)} %</strong>
+          <span>chute sur bruts utilisés</span>
+        </div>
+        <div class="stat">
+          <strong>${cuts.length}</strong>
+          <span>pièce(s) à débiter</span>
+        </div>
+      `;
+      summaryEl.classList.remove("hidden");
+
+      resultsEl.innerHTML = result.bins.map((bin, index) => {
+        const cutsSum = bin.cuts.reduce((sum, cut) => sum + cut, 0);
+        const kerfSum = bin.cuts.length * kerf;
+        const consumed = cutsSum + kerfSum;
+        const usedPercent = Math.min(100, consumed / bin.length * 100);
+        const wastePercentLocal = Math.max(0, 100 - usedPercent);
+
+        return `
+          <article class="card cut-card">
+            <h2>Brut ${index + 1} — ${formatNumber(bin.length)} mm</h2>
+
+            <div class="bar">
+              <div class="bar-used" style="width:${usedPercent}%"></div>
+              <div class="bar-waste" style="width:${wastePercentLocal}%"></div>
+            </div>
+
+            <div class="meta">
+              <div><span class="ok">À couper :</span> ${bin.cuts.map(cut => formatNumber(cut) + " mm").join(" + ")}</div>
+              <div>Longueur des pièces : ${formatNumber(cutsSum)} mm</div>
+              <div>Trait de scie estimé : ${formatNumber(kerfSum)} mm</div>
+              <div>Chute restante : <strong>${formatNumber(bin.remaining)} mm</strong></div>
+            </div>
+
+            <div class="parts">
+              ${bin.cuts.map(cut => `<span class="part">${formatNumber(cut)}</span>`).join("")}
+            </div>
+          </article>
+        `;
+      }).join("");
+
+      if (result.unplaced.length) {
+        resultsEl.innerHTML += `
+          <article class="card cut-card">
+            <h2>Cotes non placées</h2>
+            <p>${result.unplaced.map(cut => formatNumber(cut) + " mm").join(", ")}</p>
+          </article>
+        `;
+      }
+    }
+
+    function formatNumber(value) {
+      return new Intl.NumberFormat("fr-FR", {
+        maximumFractionDigits: 2
+      }).format(round2(value));
+    }
+
+    function round2(value) {
+      return Math.round((value + Number.EPSILON) * 100) / 100;
+    }
+  </script>
+</body>
+</html>
