@@ -15,6 +15,7 @@
       --soft: #eee7dc;
       --danger: #8a2d2d;
       --ok: #21613b;
+      --blue: #315f96;
     }
 
     * {
@@ -30,7 +31,7 @@
     }
 
     main {
-      width: min(760px, 100%);
+      width: min(800px, 100%);
       margin: 0 auto;
       padding: 14px;
       padding-bottom: 40px;
@@ -61,6 +62,29 @@
       margin: 18px 0 0;
       font-size: .88rem;
       color: rgba(255,255,255,.62);
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 14px 0;
+    }
+
+    .tab {
+      background: var(--soft);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px 12px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
     }
 
     section, .card {
@@ -188,6 +212,32 @@
       font-size: 1.12rem;
     }
 
+    .shopping-list {
+      background: #edf4ff;
+      border-color: #cbdcf5;
+    }
+
+    .shopping-list h2 {
+      color: var(--blue);
+    }
+
+    .shopping-items {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .shopping-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      background: white;
+      border: 1px solid #d8e4f6;
+      border-radius: 14px;
+      padding: 12px;
+      font-weight: 800;
+    }
+
     .bar {
       width: 100%;
       height: 18px;
@@ -235,12 +285,12 @@
       font-weight: 800;
     }
 
-    @media (max-width: 520px) {
+    @media (max-width: 560px) {
       main {
         padding: 12px;
       }
 
-      .actions, #summary {
+      .tabs, .actions, #summary {
         grid-template-columns: 1fr;
       }
 
@@ -256,43 +306,86 @@
     <header>
       <h1>Optimiseur de bruts</h1>
       <p class="subtitle">
-        Rentre les bruts disponibles, puis les cotes à débiter. L’application cherche un plan de coupe pour réduire les chutes.
+        Optimise les coupes pour limiter les chutes. Tu peux soit utiliser des bruts déjà disponibles, soit calculer quoi acheter.
       </p>
       <p class="papa">Créé avec soin pour mon papa ❤️</p>
     </header>
 
-    <section>
-      <label for="stocks">Bruts disponibles <span>en mm</span></label>
-      <textarea id="stocks" placeholder="Exemples :
+    <div class="tabs">
+      <button id="tabStock" class="tab active" type="button">J’ai déjà des bruts</button>
+      <button id="tabBuy" class="tab" type="button">Je dois acheter</button>
+    </div>
+
+    <div id="modeStock">
+      <section>
+        <label for="stocks">Bruts disponibles <span>en mm</span></label>
+        <textarea id="stocks" placeholder="Exemples :
 5000
 6000
 6000
 1000"></textarea>
-      <p class="hint">Tu peux écrire une cote par ligne, avec des virgules, ou avec une quantité. Exemple : 6000 x 3.</p>
-    </section>
+        <p class="hint">Tu peux écrire une cote par ligne, avec des virgules, ou avec une quantité. Exemple : 6000 x 3.</p>
+      </section>
 
-    <section>
-      <label for="cuts">Cotes à débiter <span>en mm</span></label>
-      <textarea id="cuts" placeholder="Exemples :
+      <section>
+        <label for="cutsStock">Cotes à débiter <span>en mm</span></label>
+        <textarea id="cutsStock" placeholder="Exemples :
 580
 580
 1200
 900
 450 x 4"></textarea>
-      <p class="hint">Exemple : 580 x 6 ajoute six morceaux de 580 mm.</p>
-    </section>
+        <p class="hint">Exemple : 580 x 6 ajoute six morceaux de 580 mm.</p>
+      </section>
 
-    <section>
-      <label for="kerf">Trait de scie</label>
-      <div class="kerf-line">
-        <input id="kerf" inputmode="decimal" value="3">
-        <span>mm par coupe</span>
+      <section>
+        <label for="kerfStock">Trait de scie</label>
+        <div class="kerf-line">
+          <input id="kerfStock" inputmode="decimal" value="3">
+          <span>mm par coupe</span>
+        </div>
+      </section>
+
+      <div class="actions">
+        <button id="optimizeStockBtn" type="button">Optimiser le débit</button>
+        <button id="clearStockBtn" type="button" class="secondary">Effacer</button>
       </div>
-    </section>
+    </div>
 
-    <div class="actions">
-      <button id="optimizeBtn" type="button">Optimiser le débit</button>
-      <button id="clearBtn" type="button" class="secondary">Effacer</button>
+    <div id="modeBuy" class="hidden">
+      <section>
+        <label for="buyLengths">Longueurs possibles à acheter <span>en mm</span></label>
+        <textarea id="buyLengths" placeholder="Exemples :
+3000
+4000
+5000
+6000"></textarea>
+        <p class="hint">Ici tu mets les longueurs que tu peux acheter au magasin. Exemple : 2500, 3000, 4000, 5000, 6000.</p>
+      </section>
+
+      <section>
+        <label for="cutsBuy">Cotes à débiter <span>en mm</span></label>
+        <textarea id="cutsBuy" placeholder="Exemples :
+580
+580
+1200
+900
+450 x 4"></textarea>
+        <p class="hint">L’appli calcule ensuite quelles longueurs acheter et combien, pour limiter les chutes.</p>
+      </section>
+
+      <section>
+        <label for="kerfBuy">Trait de scie</label>
+        <div class="kerf-line">
+          <input id="kerfBuy" inputmode="decimal" value="3">
+          <span>mm par coupe</span>
+        </div>
+      </section>
+
+      <div class="actions">
+        <button id="optimizeBuyBtn" type="button">Calculer quoi acheter</button>
+        <button id="clearBuyBtn" type="button" class="secondary">Effacer</button>
+      </div>
     </div>
 
     <section id="message" class="hidden"></section>
@@ -301,38 +394,80 @@
   </main>
 
   <script>
+    const tabStock = document.getElementById("tabStock");
+    const tabBuy = document.getElementById("tabBuy");
+    const modeStock = document.getElementById("modeStock");
+    const modeBuy = document.getElementById("modeBuy");
+
     const stocksEl = document.getElementById("stocks");
-    const cutsEl = document.getElementById("cuts");
-    const kerfEl = document.getElementById("kerf");
-    const optimizeBtn = document.getElementById("optimizeBtn");
-    const clearBtn = document.getElementById("clearBtn");
+    const cutsStockEl = document.getElementById("cutsStock");
+    const kerfStockEl = document.getElementById("kerfStock");
+
+    const buyLengthsEl = document.getElementById("buyLengths");
+    const cutsBuyEl = document.getElementById("cutsBuy");
+    const kerfBuyEl = document.getElementById("kerfBuy");
+
+    const optimizeStockBtn = document.getElementById("optimizeStockBtn");
+    const clearStockBtn = document.getElementById("clearStockBtn");
+    const optimizeBuyBtn = document.getElementById("optimizeBuyBtn");
+    const clearBuyBtn = document.getElementById("clearBuyBtn");
+
     const messageEl = document.getElementById("message");
     const summaryEl = document.getElementById("summary");
     const resultsEl = document.getElementById("results");
 
-    const STORAGE_KEY = "optimiseur-bruts-simple-html";
+    const STORAGE_KEY = "optimiseur-bruts-achat-v2";
+    let currentMode = "stock";
 
     loadSavedData();
 
-    [stocksEl, cutsEl, kerfEl].forEach(el => {
+    [stocksEl, cutsStockEl, kerfStockEl, buyLengthsEl, cutsBuyEl, kerfBuyEl].forEach(el => {
       el.addEventListener("input", saveData);
     });
 
-    optimizeBtn.addEventListener("click", runOptimization);
+    tabStock.addEventListener("click", () => setMode("stock"));
+    tabBuy.addEventListener("click", () => setMode("buy"));
 
-    clearBtn.addEventListener("click", () => {
+    optimizeStockBtn.addEventListener("click", runStockOptimization);
+    optimizeBuyBtn.addEventListener("click", runBuyOptimization);
+
+    clearStockBtn.addEventListener("click", () => {
       stocksEl.value = "";
-      cutsEl.value = "";
-      kerfEl.value = "3";
+      cutsStockEl.value = "";
+      kerfStockEl.value = "3";
       saveData();
       clearOutput();
     });
 
+    clearBuyBtn.addEventListener("click", () => {
+      buyLengthsEl.value = "";
+      cutsBuyEl.value = "";
+      kerfBuyEl.value = "3";
+      saveData();
+      clearOutput();
+    });
+
+    function setMode(mode) {
+      currentMode = mode;
+
+      tabStock.classList.toggle("active", mode === "stock");
+      tabBuy.classList.toggle("active", mode === "buy");
+      modeStock.classList.toggle("hidden", mode !== "stock");
+      modeBuy.classList.toggle("hidden", mode !== "buy");
+
+      clearOutput();
+      saveData();
+    }
+
     function saveData() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        currentMode,
         stocks: stocksEl.value,
-        cuts: cutsEl.value,
-        kerf: kerfEl.value
+        cutsStock: cutsStockEl.value,
+        kerfStock: kerfStockEl.value,
+        buyLengths: buyLengthsEl.value,
+        cutsBuy: cutsBuyEl.value,
+        kerfBuy: kerfBuyEl.value
       }));
     }
 
@@ -340,9 +475,16 @@
       try {
         const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
         if (!saved) return;
+
         stocksEl.value = saved.stocks || "";
-        cutsEl.value = saved.cuts || "";
-        kerfEl.value = saved.kerf || "3";
+        cutsStockEl.value = saved.cutsStock || "";
+        kerfStockEl.value = saved.kerfStock || "3";
+
+        buyLengthsEl.value = saved.buyLengths || "";
+        cutsBuyEl.value = saved.cutsBuy || "";
+        kerfBuyEl.value = saved.kerfBuy || "3";
+
+        setMode(saved.currentMode || "stock");
       } catch {}
     }
 
@@ -361,9 +503,7 @@
           const length = toNumber(repeated[1]);
           const qty = Number.parseInt(repeated[2], 10);
           if (Number.isFinite(length) && length > 0 && qty > 0) {
-            for (let i = 0; i < qty; i++) {
-              values.push(round2(length));
-            }
+            for (let i = 0; i < qty; i++) values.push(round2(length));
           }
           continue;
         }
@@ -371,13 +511,15 @@
         const numbers = line.match(/\d+(?:[.,]\d+)?/g) || [];
         for (const number of numbers) {
           const length = toNumber(number);
-          if (Number.isFinite(length) && length > 0) {
-            values.push(round2(length));
-          }
+          if (Number.isFinite(length) && length > 0) values.push(round2(length));
         }
       }
 
       return values;
+    }
+
+    function uniqueSorted(values) {
+      return [...new Set(values.map(v => round2(v)))].sort((a, b) => a - b);
     }
 
     function toNumber(value) {
@@ -400,12 +542,12 @@
       messageEl.classList.add("hidden");
     }
 
-    function runOptimization() {
+    function runStockOptimization() {
       clearOutput();
 
       const stocks = parseLengths(stocksEl.value).sort((a, b) => a - b);
-      const cuts = parseLengths(cutsEl.value).sort((a, b) => b - a);
-      const kerf = Math.max(0, toNumber(kerfEl.value) || 0);
+      const cuts = parseLengths(cutsStockEl.value).sort((a, b) => b - a);
+      const kerf = Math.max(0, toNumber(kerfStockEl.value) || 0);
 
       if (!stocks.length) {
         showMessage("Ajoute au moins un brut disponible.");
@@ -425,7 +567,7 @@
         return;
       }
 
-      const result = greedyOptimize(cuts, stocks, kerf);
+      const result = optimizeWithExistingStocks(cuts, stocks, kerf);
 
       if (result.unplaced.length) {
         showMessage("Je n’arrive pas à placer toutes les cotes avec les bruts disponibles. Il manque de la longueur ou certains bruts sont trop courts.");
@@ -433,10 +575,40 @@
         hideMessage();
       }
 
-      renderResult(result, cuts, kerf);
+      renderResult(result, cuts, kerf, "stock");
     }
 
-    function greedyOptimize(cuts, stocks, kerf) {
+    function runBuyOptimization() {
+      clearOutput();
+
+      const stockTypes = uniqueSorted(parseLengths(buyLengthsEl.value));
+      const cuts = parseLengths(cutsBuyEl.value).sort((a, b) => b - a);
+      const kerf = Math.max(0, toNumber(kerfBuyEl.value) || 0);
+
+      if (!stockTypes.length) {
+        showMessage("Ajoute au moins une longueur possible à acheter.");
+        return;
+      }
+
+      if (!cuts.length) {
+        showMessage("Ajoute au moins une cote à débiter.");
+        return;
+      }
+
+      const biggestStock = Math.max(...stockTypes);
+      const impossible = cuts.filter(cut => cut + kerf > biggestStock);
+
+      if (impossible.length) {
+        showMessage("Impossible : une cote est plus grande que la plus grande longueur achetable. Cote bloquante : " + formatNumber(impossible[0]) + " mm.");
+        return;
+      }
+
+      const result = optimizePurchase(cuts, stockTypes, kerf);
+      hideMessage();
+      renderResult(result, cuts, kerf, "buy");
+    }
+
+    function optimizeWithExistingStocks(cuts, stocks, kerf) {
       const unused = stocks.map((length, index) => ({ id: index, length })).sort((a, b) => a.length - b.length);
       const bins = [];
       const unplaced = [];
@@ -483,18 +655,225 @@
       return {
         bins,
         unplaced,
-        waste: round2(bins.reduce((sum, bin) => sum + bin.remaining, 0))
+        waste: round2(bins.reduce((sum, bin) => sum + bin.remaining, 0)),
+        exact: false
       };
     }
 
-    function renderResult(result, cuts, kerf) {
+    function optimizePurchase(cuts, stockTypes, kerf) {
+      const greedy = greedyPurchase(cuts, stockTypes, kerf);
+      const exact = cuts.length <= 23 ? exactPurchase(cuts, stockTypes, kerf, greedy, 1600) : null;
+      return exact || greedy;
+    }
+
+    function greedyPurchase(cuts, stockTypes, kerf) {
+      const bins = [];
+
+      for (let i = 0; i < cuts.length; i++) {
+        const cut = cuts[i];
+        const needed = cut + kerf;
+
+        let bestBinIndex = -1;
+        let bestRemaining = Infinity;
+
+        for (let j = 0; j < bins.length; j++) {
+          const after = bins[j].remaining - needed;
+          if (after >= 0 && after < bestRemaining) {
+            bestRemaining = after;
+            bestBinIndex = j;
+          }
+        }
+
+        if (bestBinIndex !== -1) {
+          bins[bestBinIndex].cuts.push(cut);
+          bins[bestBinIndex].remaining = round2(bins[bestBinIndex].remaining - needed);
+          continue;
+        }
+
+        const remainingCuts = cuts.slice(i + 1);
+        let bestType = null;
+        let bestScore = Infinity;
+
+        for (const type of stockTypes) {
+          if (type < needed) continue;
+
+          let rem = round2(type - needed);
+
+          for (const nextCut of remainingCuts) {
+            const nextNeeded = nextCut + kerf;
+            if (rem >= nextNeeded) rem = round2(rem - nextNeeded);
+          }
+
+          const score = rem * 100000 + type;
+
+          if (score < bestScore) {
+            bestScore = score;
+            bestType = type;
+          }
+        }
+
+        bins.push({
+          id: bins.length,
+          length: bestType,
+          remaining: round2(bestType - needed),
+          cuts: [cut]
+        });
+      }
+
+      bins.sort((a, b) => b.length - a.length || a.remaining - b.remaining);
+
+      return {
+        bins,
+        unplaced: [],
+        waste: round2(bins.reduce((sum, bin) => sum + bin.remaining, 0)),
+        exact: false
+      };
+    }
+
+    function exactPurchase(cuts, stockTypes, kerf, initialBest, timeLimitMs) {
+      const startTime = performance.now();
+      const totalNeeded = cuts.reduce((sum, cut) => sum + cut + kerf, 0);
+
+      let best = cloneResult(initialBest);
+      let bestSelectedLength = best.bins.reduce((sum, bin) => sum + bin.length, 0);
+      const bins = [];
+
+      function snapshot(exact) {
+        const usedBins = bins.map((bin, index) => ({
+          id: index,
+          length: bin.length,
+          remaining: round2(bin.remaining),
+          cuts: [...bin.cuts]
+        }));
+
+        usedBins.sort((a, b) => b.length - a.length || a.remaining - b.remaining);
+
+        return {
+          bins: usedBins,
+          unplaced: [],
+          waste: round2(usedBins.reduce((sum, bin) => sum + bin.remaining, 0)),
+          exact
+        };
+      }
+
+      function isBetter(candidate) {
+        const selectedLength = candidate.bins.reduce((sum, bin) => sum + bin.length, 0);
+        const bestLength = best.bins.reduce((sum, bin) => sum + bin.length, 0);
+
+        if (selectedLength !== bestLength) return selectedLength < bestLength;
+        if (candidate.waste !== best.waste) return candidate.waste < best.waste;
+        if (candidate.bins.length !== best.bins.length) return candidate.bins.length < best.bins.length;
+
+        const candidateMaxWaste = Math.max(...candidate.bins.map(bin => bin.remaining));
+        const bestMaxWaste = Math.max(...best.bins.map(bin => bin.remaining));
+
+        return candidateMaxWaste < bestMaxWaste;
+      }
+
+      function dfs(index, selectedLength) {
+        if (performance.now() - startTime > timeLimitMs) return;
+
+        if (selectedLength >= bestSelectedLength) {
+          return;
+        }
+
+        if (index === cuts.length) {
+          const candidate = snapshot(true);
+
+          if (isBetter(candidate)) {
+            best = candidate;
+            bestSelectedLength = best.bins.reduce((sum, bin) => sum + bin.length, 0);
+          }
+
+          return;
+        }
+
+        const cut = cuts[index];
+        const needed = cut + kerf;
+
+        const binOptions = bins
+          .map((bin, binIndex) => ({
+            bin,
+            binIndex,
+            after: round2(bin.remaining - needed)
+          }))
+          .filter(option => option.after >= 0)
+          .sort((a, b) => a.after - b.after);
+
+        const seenExisting = new Set();
+
+        for (const option of binOptions) {
+          const key = option.bin.length + "-" + option.after;
+          if (seenExisting.has(key)) continue;
+          seenExisting.add(key);
+
+          option.bin.remaining = round2(option.bin.remaining - needed);
+          option.bin.cuts.push(cut);
+
+          dfs(index + 1, selectedLength);
+
+          option.bin.cuts.pop();
+          option.bin.remaining = round2(option.bin.remaining + needed);
+        }
+
+        for (const type of stockTypes) {
+          if (type < needed) continue;
+          if (selectedLength + type >= bestSelectedLength) continue;
+
+          bins.push({
+            length: type,
+            remaining: round2(type - needed),
+            cuts: [cut]
+          });
+
+          dfs(index + 1, selectedLength + type);
+
+          bins.pop();
+        }
+      }
+
+      dfs(0, 0);
+      best.exact = best.waste === round2(best.bins.reduce((sum, bin) => sum + bin.remaining, 0));
+      return best;
+    }
+
+    function cloneResult(result) {
+      return {
+        bins: result.bins.map(bin => ({
+          id: bin.id,
+          length: bin.length,
+          remaining: bin.remaining,
+          cuts: [...bin.cuts]
+        })),
+        unplaced: [...result.unplaced],
+        waste: result.waste,
+        exact: result.exact
+      };
+    }
+
+    function groupShoppingList(bins) {
+      const map = new Map();
+
+      for (const bin of bins) {
+        const key = String(bin.length);
+        map.set(key, (map.get(key) || 0) + 1);
+      }
+
+      return [...map.entries()]
+        .map(([length, qty]) => ({ length: Number(length), qty }))
+        .sort((a, b) => b.length - a.length);
+    }
+
+    function renderResult(result, cuts, kerf, mode) {
       const totalUsedStocks = result.bins.reduce((sum, bin) => sum + bin.length, 0);
+      const totalCutsLength = cuts.reduce((sum, cut) => sum + cut, 0);
+      const totalKerf = cuts.length * kerf;
       const wastePercent = totalUsedStocks > 0 ? result.waste / totalUsedStocks * 100 : 0;
 
       summaryEl.innerHTML = `
         <div class="stat">
           <strong>${result.bins.length}</strong>
-          <span>brut(s) utilisé(s)</span>
+          <span>${mode === "buy" ? "brut(s) à acheter" : "brut(s) utilisé(s)"}</span>
         </div>
         <div class="stat">
           <strong>${formatNumber(result.waste)} mm</strong>
@@ -502,7 +881,7 @@
         </div>
         <div class="stat">
           <strong>${formatNumber(wastePercent)} %</strong>
-          <span>chute sur bruts utilisés</span>
+          <span>chute sur bruts</span>
         </div>
         <div class="stat">
           <strong>${cuts.length}</strong>
@@ -511,7 +890,32 @@
       `;
       summaryEl.classList.remove("hidden");
 
-      resultsEl.innerHTML = result.bins.map((bin, index) => {
+      resultsEl.innerHTML = "";
+
+      if (mode === "buy") {
+        const shopping = groupShoppingList(result.bins);
+        const shoppingHtml = shopping.map(item => `
+          <div class="shopping-item">
+            <span>${formatNumber(item.length)} mm</span>
+            <span>x ${item.qty}</span>
+          </div>
+        `).join("");
+
+        resultsEl.innerHTML += `
+          <article class="card cut-card shopping-list">
+            <h2>À acheter</h2>
+            <div class="meta">
+              <div>Total acheté : <strong>${formatNumber(totalUsedStocks)} mm</strong></div>
+              <div>Longueur utile des pièces : <strong>${formatNumber(totalCutsLength)} mm</strong></div>
+              <div>Trait de scie estimé : <strong>${formatNumber(totalKerf)} mm</strong></div>
+              <div>Chute totale estimée : <strong>${formatNumber(result.waste)} mm</strong></div>
+            </div>
+            <div class="shopping-items">${shoppingHtml}</div>
+          </article>
+        `;
+      }
+
+      resultsEl.innerHTML += result.bins.map((bin, index) => {
         const cutsSum = bin.cuts.reduce((sum, cut) => sum + cut, 0);
         const kerfSum = bin.cuts.length * kerf;
         const consumed = cutsSum + kerfSum;
@@ -520,7 +924,7 @@
 
         return `
           <article class="card cut-card">
-            <h2>Brut ${index + 1} — ${formatNumber(bin.length)} mm</h2>
+            <h2>${mode === "buy" ? "Brut à acheter" : "Brut"} ${index + 1} — ${formatNumber(bin.length)} mm</h2>
 
             <div class="bar">
               <div class="bar-used" style="width:${usedPercent}%"></div>
@@ -541,7 +945,7 @@
         `;
       }).join("");
 
-      if (result.unplaced.length) {
+      if (result.unplaced && result.unplaced.length) {
         resultsEl.innerHTML += `
           <article class="card cut-card">
             <h2>Cotes non placées</h2>
