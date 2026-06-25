@@ -1,0 +1,277 @@
+:root {
+  --bg: #f5f2ec;
+  --card: #ffffff;
+  --text: #252525;
+  --muted: #6f6a61;
+  --border: #ded8ce;
+  --accent: #222222;
+  --soft: #eee8dc;
+  --danger: #8a2d2d;
+  --ok: #235c39;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.app {
+  width: min(760px, 100%);
+  margin: 0 auto;
+  padding: 18px;
+  padding-bottom: 40px;
+}
+
+.hero {
+  background: var(--accent);
+  color: white;
+  border-radius: 22px;
+  padding: 22px;
+  margin-bottom: 16px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.14);
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: rgba(255, 255, 255, 0.72);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(2rem, 7vw, 3.4rem);
+  line-height: 0.95;
+}
+
+.subtitle {
+  margin: 14px 0 0;
+  color: rgba(255, 255, 255, 0.78);
+  line-height: 1.45;
+}
+
+.papa {
+  margin: 18px 0 0;
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.panel,
+.settings,
+.summary,
+.message,
+.cut-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 16px;
+  margin-top: 14px;
+}
+
+label {
+  display: block;
+  font-weight: 800;
+  font-size: 1.05rem;
+  margin-bottom: 10px;
+}
+
+label span,
+.hint {
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 0.88rem;
+}
+
+textarea,
+input {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 13px;
+  font: inherit;
+  color: var(--text);
+  background: #fffdf9;
+  outline: none;
+}
+
+textarea:focus,
+input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(34, 34, 34, 0.08);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 130px;
+}
+
+.hint {
+  margin: 10px 0 0;
+  line-height: 1.35;
+}
+
+.settings {
+  display: grid;
+  gap: 8px;
+}
+
+.kerf-line {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+button {
+  border: 0;
+  border-radius: 16px;
+  padding: 15px 16px;
+  font: inherit;
+  font-weight: 800;
+  color: white;
+  background: var(--accent);
+  cursor: pointer;
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+button.secondary {
+  color: var(--text);
+  background: var(--soft);
+}
+
+.hidden {
+  display: none;
+}
+
+.message {
+  color: var(--danger);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.summary.hidden {
+  display: none;
+}
+
+.stat {
+  background: #faf7f0;
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.stat strong {
+  display: block;
+  font-size: 1.25rem;
+}
+
+.stat span {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.results {
+  margin-top: 14px;
+  display: grid;
+  gap: 12px;
+}
+
+.cut-card h2 {
+  margin: 0 0 10px;
+  font-size: 1.1rem;
+}
+
+.bar {
+  width: 100%;
+  height: 18px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--soft);
+  display: flex;
+  margin: 12px 0;
+}
+
+.bar-used {
+  background: var(--accent);
+  min-width: 0;
+}
+
+.bar-waste {
+  background: #c9bda9;
+  min-width: 0;
+}
+
+.parts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.part {
+  background: #f0ede7;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 7px 10px;
+  font-weight: 700;
+}
+
+.meta {
+  display: grid;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 0.94rem;
+}
+
+.ok {
+  color: var(--ok);
+  font-weight: 800;
+}
+
+@media (max-width: 520px) {
+  .app {
+    padding: 12px;
+  }
+
+  .actions {
+    grid-template-columns: 1fr;
+  }
+
+  .summary {
+    grid-template-columns: 1fr;
+  }
+
+  .hero,
+  .panel,
+  .settings,
+  .summary,
+  .message,
+  .cut-card {
+    border-radius: 16px;
+  }
+}
